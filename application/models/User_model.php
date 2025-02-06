@@ -16,21 +16,21 @@ class User_model extends CI_Model
     }
 
     $available_columns = ["id", "username", "email"];
+    $is_matching = false;
     foreach ($available_columns as $column) {
-      if ($identifier_type !== $column) {
-        throw new Exception("Unknown identifier cannot be filtered from the users table");
+      if ($identifier_type === $column) {
+        $is_matching = true;
       }
+    }
+    if ($is_matching === false) {
+      throw new Exception("Unknown identifier cannot be filtered from the users table");
     }
     $query = $this->db->where([$identifier_type => $unique_identifier])->get("users");
   }
 
   public function create_user($data = [])
   {
-    if (count($data)) {
-      return false;
-    }
-
-    $data["password"] = password_hash($data["password"], "PASSWORD_BCRYPT");
+    $data["password"] = password_hash($data["password"], PASSWORD_BCRYPT);
 
     return $this->db->insert("users", $data);
   }

@@ -29,7 +29,12 @@ class Users extends CI_Controller
     $is_successful = $this->user_model->create_user($user_data);
 
     if ($is_successful) {
-      // $admin_user = $this->user_model->get_user($admin_username);
+      $admin_user = $this->user_model->get_users($admin_username);
+      $this->load->view("users/seed_admin", $admin_user);
+      return null;
     }
+
+    print_r($is_successful);
+    // redirect(base_url());
   }
 }
