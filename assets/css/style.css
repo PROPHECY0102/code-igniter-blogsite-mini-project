@@ -188,7 +188,50 @@ body {
 	color: var(--clr-neutral-900);
 	background-color: var(--clr-primary-600);
 	display: flex;
+	justify-content: space-between;
+	align-items: center;
+}
+
+.header-logo-nav {
+	display: flex;
 	gap: 4rem;
+}
+
+.header-register-login {
+	display: grid;
+	grid-auto-flow: column;
+	justify-content: start;
+	align-items: center;
+	gap: 0.5rem;
+}
+
+.btn-style {
+	padding-inline: 1rem;
+	padding-block: 0.5rem;
+	background-color: black;
+	border-radius: 0.25rem;
+	transition: all 150ms ease-in;
+}
+
+.link-register {
+	background-color: transparent;
+	border: 1px solid white;
+}
+
+.link-register:hover {
+	background-color: rgba(0, 0, 0, 0.15);
+	border-color: rgba(255, 255, 255, 0.7);
+}
+
+.link-login {
+	background-color: white;
+	border: 1px solid white;
+	color: var(--clr-primary-600);
+}
+
+.link-login:hover {
+	background-color: rgba(255, 255, 255, 0.9);
+	border-color: rgba(255, 255, 255, 0.7);
 }
 
 .logo {
@@ -408,4 +451,86 @@ body {
 
 .btn-submit-post:hover {
 	background-color: var(--clr-secondary-300);
+}
+
+.login-container {
+	display: grid;
+	padding-block: 2rem;
+	padding-inline: 36rem;
+	background-color: var(--clr-neutral-800);
+}
+
+.login-username-email-container {
+	display: grid;
+	gap: 0.5rem;
+}
+
+.login-password-container {
+	margin-top: 1rem;
+	display: grid;
+	gap: 0.5rem;
+}
+
+.login-username-email-label {
+	font-weight: medium;
+	font-size: 1.2rem;
+}
+
+.login-password-label {
+	font-weight: medium;
+	font-size: 1.2rem;
+}
+
+.login-fields {
+	outline: none;
+	border: none;
+	padding-inline: 1rem;
+	padding-block: 0.5rem;
+	border-bottom: 2px solid white;
+}
+
+.login-fields {
+	outline: none;
+	border: none;
+	padding-inline: 1rem;
+	padding-block: 0.5rem;
+	border-bottom: 2px solid white;
+}
+
+.login-fields:focus-within {
+	border-color: black;
+}
+
+.login-submit-container {
+	display: flex;
+	justify-content: space-between;
+	margin-top: 1rem;
+}
+
+.btn-change-method {
+	font-weight: medium;
+	color: white;
+	background-color: var(--clr-secondary-600);
+	padding-inline: 1rem;
+	padding-block: 0.5rem;
+	border-radius: 0.25rem;
+	transition: all 150ms ease-in;
+}
+
+.btn-change-method:hover {
+	background-color: var(--clr-secondary-300);
+}
+
+.btn-submit-login {
+	font-weight: medium;
+	color: white;
+	background-color: var(--clr-primary-600);
+	padding-inline: 1rem;
+	padding-block: 0.5rem;
+	border-radius: 0.25rem;
+	transition: all 150ms ease-in;
+}
+
+.btn-submit-login:hover {
+	background-color: var(--clr-primary-600-hovered);
 }
