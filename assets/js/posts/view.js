@@ -12,7 +12,7 @@ async function deletePost(id) {
 			"Content-Type": "application/json",
 		},
 		body: JSON.stringify({
-			authentication: "some form of auth",
+			data: "data",
 		}),
 	});
 }

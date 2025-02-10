@@ -14,10 +14,15 @@ class Users extends CI_Controller
     parent::__construct();
     $this->load->library("session");
     $this->load->model("user_model");
+    $this->load->library("auth");
   }
 
   public function login()
   {
+    $data["auth"] = $this->auth->login_info;
+    if ($this->auth->is_logged_in()) {
+      redirect("");
+    }
     $data["title"] = "Login";
 
     if ($this->input->method() === "get") {
@@ -57,7 +62,72 @@ class Users extends CI_Controller
     );
 
     $this->session->set_userdata($session_data);
-    redirect('');
+    redirect("");
+  }
+
+  public function register()
+  {
+    $data["auth"] = $this->auth->login_info;
+    if ($this->auth->is_logged_in()) {
+      redirect("");
+    }
+    $data["title"] = "Register";
+
+    if ($this->input->method() === "get") {
+      $data["register_response"] = array();
+      $this->load->view("templates/header", $data);
+      $this->load->view("users/register", $data);
+      $this->load->view("templates/footer");
+      return null;
+    }
+
+    $req_body = $this->input->post();
+    $request_check = $this->user_model->validate_register_request($req_body);
+    if (!$request_check["request_valid"]) {
+      $data["register_response"] = $request_check;
+      $this->load->view("templates/header", $data);
+      $this->load->view("users/register", $data);
+      $this->load->view("templates/footer");
+      return null;
+    }
+
+    $credentials_check = $this->user_model->verify_register_credentials($req_body);
+
+    if (!$credentials_check["register_status"]) {
+      $data["register_response"] = $credentials_check;
+      $this->load->view("templates/header", $data);
+      $this->load->view("users/register", $data);
+      $this->load->view("templates/footer");
+      return null;
+    }
+
+    $user = $credentials_check["user"];
+
+    $session_data = array(
+      "user_id" => $user["id"],
+      "username" => $user["username"],
+      "logged_in" => $credentials_check["register_status"]
+    );
+
+    $this->session->set_userdata($session_data);
+    redirect("");
+  }
+
+  public function logout()
+  {
+    $data["auth"] = $this->auth->login_info;
+    if (!$this->auth->is_logged_in()) {
+      redirect("");
+    }
+
+    $session_data = array(
+      "user_id" => null,
+      "username" => null,
+      "logged_in" => false
+    );
+
+    $this->session->set_userdata($session_data);
+    redirect("");
   }
 
   public function seed_admin()
@@ -81,7 +151,6 @@ class Users extends CI_Controller
       return null;
     }
 
-    print_r($is_successful);
-    // redirect(base_url());
+    redirect("");
   }
 }

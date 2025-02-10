@@ -369,8 +369,24 @@ body {
 	transition: all 150ms ease-in;
 }
 
+.btn-edit-post {
+	font-weight: medium;
+	color: white;
+	margin-top: 1rem;
+	background-color: var(--clr-secondary-600);
+	padding-inline: 1rem;
+	padding-block: 0.5rem;
+	border-radius: 0.25rem;
+	transition: all 150ms ease-in;
+	margin-right: 0.6rem;
+}
+
 .btn-delete-post:hover {
 	background-color: #f87171;
+}
+
+.btn-edit-post:hover {
+	background-color: var(--clr-secondary-300);
 }
 
 .publish-container {
@@ -489,14 +505,6 @@ body {
 	border-bottom: 2px solid white;
 }
 
-.login-fields {
-	outline: none;
-	border: none;
-	padding-inline: 1rem;
-	padding-block: 0.5rem;
-	border-bottom: 2px solid white;
-}
-
 .login-fields:focus-within {
 	border-color: black;
 }
@@ -533,4 +541,144 @@ body {
 
 .btn-submit-login:hover {
 	background-color: var(--clr-primary-600-hovered);
+}
+
+.register-container {
+	display: grid;
+	padding-block: 2rem;
+	padding-inline: 36rem;
+	background-color: var(--clr-neutral-800);
+}
+
+.register-heading {
+	font-weight: bold;
+	font-size: 2rem;
+}
+
+.register-subheading {
+	font-weight: medium;
+	font-size: 1.2rem;
+}
+
+.register-fields {
+	outline: none;
+	border: none;
+	padding-inline: 1rem;
+	padding-block: 0.5rem;
+	border-bottom: 2px solid white;
+}
+
+.register-fields:focus-within {
+	border-color: black;
+}
+
+.register-username-container {
+	display: grid;
+	gap: 0.5rem;
+}
+
+.register-email-container {
+	margin-top: 1rem;
+	display: grid;
+	gap: 0.5rem;
+}
+
+.register-password-container {
+	margin-top: 1rem;
+	display: grid;
+	gap: 0.5rem;
+}
+
+.register-confirm-password-container {
+	margin-top: 1rem;
+	display: grid;
+	gap: 0.5rem;
+}
+
+.register-labels {
+	font-weight: medium;
+	font-size: 1.2rem;
+}
+
+.register-submit-container {
+	display: flex;
+	justify-content: end;
+	margin-top: 1rem;
+}
+
+.btn-submit-register {
+	font-weight: medium;
+	color: white;
+	background-color: var(--clr-primary-600);
+	padding-inline: 1rem;
+	padding-block: 0.5rem;
+	border-radius: 0.25rem;
+	transition: all 150ms ease-in;
+}
+
+.btn-submit-register:hover {
+	background-color: var(--clr-primary-600-hovered);
+}
+
+.header-greeting-text {
+	font-size: 1.2rem;
+	font-weight: bold;
+}
+
+/* Pagination Container */
+.pagination {
+	display: flex;
+	list-style: none;
+	padding: 0;
+	justify-content: center;
+}
+
+/* Pagination Items */
+.page-item {
+	margin: 0 5px;
+}
+
+/* Pagination Links */
+.page-link {
+	display: block;
+	padding: 8px 12px;
+	text-decoration: none;
+	color: #007bff;
+	border: 1px solid #dee2e6;
+	border-radius: 4px;
+	background-color: #fff;
+	transition: background 0.2s, color 0.2s;
+}
+
+/* Hover Effect */
+.page-link:hover {
+	background-color: #007bff;
+	color: white;
+}
+
+/* Active Page */
+.page-item.active .page-link {
+	background-color: #007bff;
+	color: white;
+	border-color: #007bff;
+	font-weight: bold;
+}
+
+/* Disabled State */
+.page-item.disabled .page-link {
+	color: #6c757d;
+	pointer-events: none;
+	background-color: #e9ecef;
+	border-color: #dee2e6;
+}
+
+/* Previous & Next Arrows */
+.page-item:first-child .page-link {
+	border-top-left-radius: 5px;
+	border-bottom-left-radius: 5px;
+}
+
+.page-item:last-child .page-link {
+	border-top-right-radius: 5px;
+	border-bottom-right-radius: 5px;
 }

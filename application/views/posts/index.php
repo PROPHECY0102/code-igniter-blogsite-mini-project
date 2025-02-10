@@ -3,19 +3,26 @@
     <h1 class="posts-list-header">Showing Latest Posts</h1>
     <a class="post-link" href="<?= base_url("/posts/seed") ?>">Seed Random Posts</a>
   </div>
-  <p>Total posts: <?= count($posts) ?></p>
+  <p>Showing <?= count($posts) ?> posts. Total number of posts: <?php echo $total_count; ?></p>
   <div class="posts-list">
-    <?php foreach ($posts as $index => $post): ?>
-      <div class="post-container">
-        <h2 class="post-title"><?= ($index + 1) ?>. <?= $post["title"] ?></h2>
-        <p class="post-content">
-          <?= $post["content"] ?>
-        </p>
-        <div class="post-subsection">
-          <p class="post-created-at">Created at: <?= $post["created_at"] ?></p>
-          <a class="post-link" href="<?= base_url("/posts/{$post["slug"]}") ?>">View Post</a>
+    <?php if (!empty($posts)): ?>
+      <?php foreach ($posts as $index => $post): ?>
+        <div class="post-container">
+          <h2 class="post-title"><?= ($index + 1) ?>. <?= $post["title"] ?></h2>
+          <p class="post-content">
+            <?= $post["content"] ?>
+          </p>
+          <div class="post-subsection">
+            <p class="post-created-at">Created at: <?= $post["created_at"] ?></p>
+            <a class="post-link" href="<?= base_url("/posts/view/{$post["slug"]}") ?>">View Post</a>
+          </div>
         </div>
-      </div>
-    <?php endforeach; ?>
+      <?php endforeach; ?>
+    <?php else: ?>
+      <h1>No Posts found.</h1>
+    <?php endif; ?>
+    <nav>
+      <?= $pagination_links; ?>
+    </nav>
   </div>
 </div>

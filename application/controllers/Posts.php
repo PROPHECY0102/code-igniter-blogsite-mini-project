@@ -7,17 +7,55 @@
  */
 class Posts extends CI_Controller
 {
+  protected $pagination_config;
+
   public function __construct()
   {
     parent::__construct();
     $this->load->library("session");
     $this->load->model("post_model");
+    $this->load->library("auth");
+    $this->load->library("pagination");
+  }
+
+  private function init_pagination_config()
+  {
+    $config = array();
+    $config['base_url'] = base_url('posts/index'); // URL for pagination links
+    $config['total_rows'] = $this->post_model->get_total_posts(); // Total records count
+    $config['per_page'] = 5; // Number of records per page
+    $config['uri_segment'] = 3; // URL segment for page number
+    $config['num_links'] = 2; // Number of pagination links to display
+
+    $config['full_tag_open'] = '<nav><ul class="pagination">';
+    $config['full_tag_close'] = '</ul></nav>';
+    $config['num_tag_open'] = '<li class="page-item">';
+    $config['num_tag_close'] = '</li>';
+    $config['cur_tag_open'] = '<li class="page-item active"><a class="page-link">';
+    $config['cur_tag_close'] = '</a></li>';
+    $config['prev_tag_open'] = '<li class="page-item">';
+    $config['prev_tag_close'] = '</li>';
+    $config['next_tag_open'] = '<li class="page-item">';
+    $config['next_tag_close'] = '</li>';
+    $config['prev_link'] = '&laquo;';
+    $config['next_link'] = '&raquo;';
+    $config['attributes'] = array('class' => 'page-link');
+
+    $this->pagination_config = $config;
   }
 
   public function index()
   {
+    $this->init_pagination_config();
+    $this->pagination->initialize($this->pagination_config);
+    $data["auth"] = $this->auth->login_info;
     $data["title"] = "Latest Posts";
-    $data['posts'] = $this->post_model->get_posts(false, "DESC");
+
+    $offset = ($this->uri->segment(3)) ? $this->uri->segment(3) : 0;
+
+    $data['posts'] = $this->post_model->get_paginated_posts($this->pagination_config["per_page"], $offset);
+    $data["total_count"] = $this->post_model->get_total_posts();
+    $data['pagination_links'] = $this->pagination->create_links();
 
     $this->load->view('templates/header', $data);
     $this->load->view('posts/index', $data);
@@ -26,6 +64,7 @@ class Posts extends CI_Controller
 
   public function view($slug = null)
   {
+    $data["auth"] = $this->auth->login_info;
     $data["post"] = $this->post_model->get_posts($slug);
 
     if (empty($data['post'])) {
@@ -41,6 +80,7 @@ class Posts extends CI_Controller
 
   public function publish()
   {
+    $data["auth"] = $this->auth->login_info;
     $data["title"] = "Publish";
 
     $this->form_validation->set_rules("title", "Title", "required");
@@ -48,7 +88,7 @@ class Posts extends CI_Controller
 
     if ($this->form_validation->run() === false) {
       $this->load->view('templates/header', $data);
-      $this->load->view('posts/publish');
+      $this->load->view('posts/publish', $data);
       $this->load->view('templates/footer');
       return null;
     }
@@ -62,8 +102,38 @@ class Posts extends CI_Controller
     redirect("posts");
   }
 
+  public function edit($id)
+  {
+    $data["auth"] = $this->auth->login_info;
+    $data["title"] = "Edit Post";
+    $data["post_id"] = $id;
+
+    $post = $this->post_model->get_post_by_id($id);
+    $data["post"] = $post;
+
+    if ($this->input->method() === "get") {
+      $this->load->view('templates/header', $data);
+      $this->load->view("posts/edit", $data);
+      $this->load->view('templates/footer');
+      return null;
+    }
+
+    $req_body = $this->input->post();
+    if (empty($req_body["title"]) || empty($req_body["content"])) {
+      $this->load->view('templates/header', $data);
+      $this->load->view("posts/edit", $data);
+      $this->load->view('templates/footer');
+      return null;
+    }
+
+    $this->post_model->update_post($id, $req_body["title"], $req_body["content"]);
+    $edited_post = $this->post_model->get_post_by_id($id);
+    redirect("posts/view/{$edited_post["slug"]}");
+  }
+
   public function delete($id)
   {
+    $data["auth"] = $this->auth->login_info;
     $result = $this->post_model->delete_post($id);
 
     $response = [
