@@ -8,6 +8,7 @@
 class Posts extends CI_Controller
 {
   protected $pagination_config;
+  protected $view_data;
 
   public function __construct()
   {
@@ -15,7 +16,18 @@ class Posts extends CI_Controller
     $this->load->library("session");
     $this->load->model("post_model");
     $this->load->library("auth");
+    $this->load->library("alerts");
     $this->load->library("pagination");
+    $this->init_view_data();
+  }
+
+  private function init_view_data()
+  {
+    $this->view_data["auth"] = $this->auth->login_info;
+    $this->view_data["notify"] = $this->session->flashdata("notify") ?? false;
+    $this->view_data["notify_type"] = $this->session->flashdata("notify_type") ?? false;
+    $this->view_data["notify_message"] = $this->session->flashdata("notify_message");
+    $this->view_data["prev_route"] = $this->session->flashdata("prev_route");
   }
 
   private function init_pagination_config()
@@ -48,92 +60,128 @@ class Posts extends CI_Controller
   {
     $this->init_pagination_config();
     $this->pagination->initialize($this->pagination_config);
-    $data["auth"] = $this->auth->login_info;
-    $data["title"] = "Latest Posts";
+    $this->view_data["title"] = "Latest Posts";
 
     $offset = ($this->uri->segment(3)) ? $this->uri->segment(3) : 0;
 
-    $data['posts'] = $this->post_model->get_paginated_posts($this->pagination_config["per_page"], $offset);
-    $data["total_count"] = $this->post_model->get_total_posts();
-    $data['pagination_links'] = $this->pagination->create_links();
+    $this->view_data['posts'] = $this->post_model->get_paginated_posts($this->pagination_config["per_page"], $offset, "DESC");
+    $this->view_data["offset"] = $offset;
+    $this->view_data["total_count"] = $this->post_model->get_total_posts();
+    $this->view_data['pagination_links'] = $this->pagination->create_links();
 
-    $this->load->view('templates/header', $data);
-    $this->load->view('posts/index', $data);
-    $this->load->view('templates/footer', $data);
+    $this->load->view('templates/header', $this->view_data);
+    $this->load->view('posts/index', $this->view_data);
+    $this->load->view('templates/footer', $this->view_data);
   }
 
   public function view($slug = null)
   {
-    $data["auth"] = $this->auth->login_info;
-    $data["post"] = $this->post_model->get_posts($slug);
+    $this->view_data["post"] = $this->post_model->get_posts($slug);
 
-    if (empty($data['post'])) {
+    if (empty($this->view_data['post'])) {
       show_404();
     }
 
-    $data["title"] = $data["post"]["title"];
+    $this->view_data["title"] = $this->view_data["post"]["title"];
 
-    $this->load->view('templates/header', $data);
-    $this->load->view('posts/view', $data);
+    $this->load->view('templates/header', $this->view_data);
+    $this->load->view('posts/view', $this->view_data);
     $this->load->view('templates/footer');
+  }
+
+  private function post_image_upload()
+  {
+    // Configure Image Upload Library
   }
 
   public function publish()
   {
-    $data["auth"] = $this->auth->login_info;
-    $data["title"] = "Publish";
+    $this->auth->no_auth_redirect(array(
+      "message" => "publish posts on Blogsite"
+    ));
+    $this->view_data["title"] = "Publish";
 
     $this->form_validation->set_rules("title", "Title", "required");
     $this->form_validation->set_rules("content", "Content", "required");
 
     if ($this->form_validation->run() === false) {
-      $this->load->view('templates/header', $data);
-      $this->load->view('posts/publish', $data);
+      $this->load->view('templates/header', $this->view_data);
+      $this->load->view('posts/publish', $this->view_data);
       $this->load->view('templates/footer');
       return null;
     }
 
-    // TODO
-    $reqBody = $this->input->post();
-    $title = $reqBody["title"];
-    $content = $reqBody["content"];
+    $req_body = $this->input->post();
+    $title = $req_body["title"];
+    $content = $req_body["content"];
 
-    $this->post_model->create_post($title, $content);
-    redirect("posts");
+    //Handle Image Upload
+
+    // $user_id = $this->view_data["auth"]["user"]["id"];
+    $this->post_model->create_post($title, $content, $this->auth->get_user_id());
+    $this->alerts->redirect_and_alert(array(
+      "message" => "Your post has been successfully published!",
+      "destination" => "posts"
+    ));
   }
 
   public function edit($id)
   {
-    $data["auth"] = $this->auth->login_info;
-    $data["title"] = "Edit Post";
-    $data["post_id"] = $id;
+    $this->auth->no_auth_redirect(array(
+      "message" => "publish posts on Blogsite"
+    ));
+
+    $this->view_data["title"] = "Edit Post";
+    $this->view_data["post_id"] = $id;
 
     $post = $this->post_model->get_post_by_id($id);
-    $data["post"] = $post;
+    $this->view_data["post"] = $post;
+    if ($this->auth->get_user_id() !== $post["user_id"]) {
+      $this->alerts->redirect_and_alert(array(
+        "message" => "You do not have permission to edit this post!",
+        "type" => "error",
+        "destination" => "posts/view/{$post['slug']}"
+      ));
+    }
 
     if ($this->input->method() === "get") {
-      $this->load->view('templates/header', $data);
-      $this->load->view("posts/edit", $data);
+      $this->load->view('templates/header', $this->view_data);
+      $this->load->view("posts/edit", $this->view_data);
       $this->load->view('templates/footer');
       return null;
     }
 
     $req_body = $this->input->post();
     if (empty($req_body["title"]) || empty($req_body["content"])) {
-      $this->load->view('templates/header', $data);
-      $this->load->view("posts/edit", $data);
+      $this->load->view('templates/header', $this->view_data);
+      $this->load->view("posts/edit", $this->view_data);
       $this->load->view('templates/footer');
       return null;
     }
 
+
     $this->post_model->update_post($id, $req_body["title"], $req_body["content"]);
     $edited_post = $this->post_model->get_post_by_id($id);
-    redirect("posts/view/{$edited_post["slug"]}");
+    $this->alerts->redirect_and_alert(array(
+      "message" => "{$edited_post['title']} has been successfully edited!",
+      "destination" => "posts/view/{$edited_post["slug"]}"
+    ));
   }
 
   public function delete($id)
   {
-    $data["auth"] = $this->auth->login_info;
+    $post = $this->post_model->get_post_by_id($id);
+    $this->view_data["post"] = $post;
+    if ($this->auth->get_user_id() !== $post["user_id"]) {
+      header("Content-Type: application/json");
+      $response = [
+        "result" => "Failed to delete post ID of $id! You do not have permission to delete this post",
+        "deleted_successfully" => false,
+        "redirect" => base_url("/posts")
+      ];
+      echo json_encode($response);
+      exit;
+    }
     $result = $this->post_model->delete_post($id);
 
     $response = [
@@ -175,7 +223,7 @@ class Posts extends CI_Controller
     $this->load->model('post_model');
     $title = ucwords($this->genTitle($titleLength, $sample_text_array));
     $content = $this->genContent($contentLength, $sample_text_array);
-    $insert_status = $this->post_model->create_post($title, $content);
+    $insert_status = $this->post_model->create_post($title, $content, 1);
     if ($insert_status == false) {
       $status_obj["failed_to_insert"]++;
     }

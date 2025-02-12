@@ -8,12 +8,15 @@
     <?php if (!empty($posts)): ?>
       <?php foreach ($posts as $index => $post): ?>
         <div class="post-container">
-          <h2 class="post-title"><?= ($index + 1) ?>. <?= $post["title"] ?></h2>
+          <h2 class="post-title"><?= (($index + $offset) + 1) ?>. <?= $post["title"] ?></h2>
           <p class="post-content">
-            <?= $post["content"] ?>
+            <?php echo word_limiter($post["content"], 60, "..."); ?>
           </p>
           <div class="post-subsection">
-            <p class="post-created-at">Created at: <?= $post["created_at"] ?></p>
+            <div class="post-extra-details">
+              <p class="post-belongs-user"><?php echo $post["username"]; ?></p>
+              <p class="post-created-at">| Created at: <?= $post["created_at"] ?></p>
+            </div>
             <a class="post-link" href="<?= base_url("/posts/view/{$post["slug"]}") ?>">View Post</a>
           </div>
         </div>

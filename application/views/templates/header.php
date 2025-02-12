@@ -12,6 +12,11 @@
 <body>
   <input type="hidden" class="metadata" data-base-url="<?= base_url("") ?>">
   <header class="header">
+    <?php if ($notify): ?>
+      <div class="notification-container" data-alert=<?php echo $notify_type; ?>>
+        <p class="notification-text"><?php echo $notify_message; ?></p>
+      </div>
+    <?php endif; ?>
     <div class="header-logo-nav">
       <a class="logo" href="<?= base_url("") ?>">BlogSite</a>
       <nav class="nav-section">
@@ -39,9 +44,4 @@
         <a class="link-login btn-style" href="<?php echo base_url("users/login"); ?>">Login</a>
       </div>
     <?php endif; ?>
-
-
-
-
-
   </header>

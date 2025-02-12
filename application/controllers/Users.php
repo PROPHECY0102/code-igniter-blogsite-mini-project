@@ -1,5 +1,7 @@
 <?php
 
+use function PHPSTORM_META\type;
+
 /** 
  *
  * @property User_model $user_model
@@ -9,25 +11,39 @@
  */
 class Users extends CI_Controller
 {
+  protected $view_data;
+
   public function __construct()
   {
     parent::__construct();
     $this->load->library("session");
     $this->load->model("user_model");
     $this->load->library("auth");
+    $this->load->library("alerts");
+    $this->init_view_data();
+  }
+
+  private function init_view_data()
+  {
+    $this->view_data["auth"] = $this->auth->login_info;
+    $this->view_data["notify"] = $this->session->flashdata("notify") ?? false;
+    $this->view_data["notify_type"] = $this->session->flashdata("notify_type") ?? false;
+    $this->view_data["notify_message"] = $this->session->flashdata("notify_message");
+    $this->view_data["prev_route"] = $this->session->flashdata("prev_route");
   }
 
   public function login()
   {
-    $data["auth"] = $this->auth->login_info;
     if ($this->auth->is_logged_in()) {
-      redirect("");
+      $this->alerts->redirect_and_alert(array(
+        "message" => "You have already logged in!"
+      ));
     }
-    $data["title"] = "Login";
+    $this->view_data["title"] = "Login";
 
     if ($this->input->method() === "get") {
-      $data["login_response"] = array();
-      $this->load->view("templates/header", $data);
+      $this->view_data["login_response"] = array();
+      $this->load->view("templates/header", $this->view_data);
       $this->load->view("users/login");
       $this->load->view("templates/footer");
       return null;
@@ -36,21 +52,21 @@ class Users extends CI_Controller
     $req_body = $this->input->post();
     $request_check = $this->user_model->validate_login_request($req_body);
     if (!$request_check["request_valid"]) {
-      $data["login_response"] = $request_check;
-      $this->load->view("templates/header", $data);
-      $this->load->view("users/login", $data);
-      $this->load->view("templates/footer");
-      return null;
+      $this->alerts->redirect_and_alert(array(
+        "message" => $request_check["message"],
+        "type" => "error",
+        "destination" => "users/login"
+      ));
     }
 
     $auth = $this->user_model->verify_user($req_body);
 
     if (!$auth["login_status"]) {
-      $data["login_response"] = $auth;
-      $this->load->view("templates/header", $data);
-      $this->load->view("users/login", $data);
-      $this->load->view("templates/footer");
-      return null;
+      $this->alerts->redirect_and_alert(array(
+        "message" => $auth["message"],
+        "type" => "error",
+        "destination" => "users/login"
+      ));
     }
 
     $user = $auth["user"];
@@ -62,21 +78,24 @@ class Users extends CI_Controller
     );
 
     $this->session->set_userdata($session_data);
-    redirect("");
+    $this->alerts->redirect_and_alert(array(
+      "message" => $auth["message"],
+    ));
   }
 
   public function register()
   {
-    $data["auth"] = $this->auth->login_info;
     if ($this->auth->is_logged_in()) {
-      redirect("");
+      $this->alerts->redirect_and_alert(array(
+        "message" => "You have already logged in!"
+      ));
     }
-    $data["title"] = "Register";
+    $this->view_data["title"] = "Register";
 
     if ($this->input->method() === "get") {
-      $data["register_response"] = array();
-      $this->load->view("templates/header", $data);
-      $this->load->view("users/register", $data);
+      $this->view_data["register_response"] = array();
+      $this->load->view("templates/header", $this->view_data);
+      $this->load->view("users/register", $this->view_data);
       $this->load->view("templates/footer");
       return null;
     }
@@ -84,21 +103,21 @@ class Users extends CI_Controller
     $req_body = $this->input->post();
     $request_check = $this->user_model->validate_register_request($req_body);
     if (!$request_check["request_valid"]) {
-      $data["register_response"] = $request_check;
-      $this->load->view("templates/header", $data);
-      $this->load->view("users/register", $data);
-      $this->load->view("templates/footer");
-      return null;
+      $this->alerts->redirect_and_alert(array(
+        "message" => $request_check["message"],
+        "type" => "error",
+        "destination" => "users/register"
+      ));
     }
 
     $credentials_check = $this->user_model->verify_register_credentials($req_body);
 
     if (!$credentials_check["register_status"]) {
-      $data["register_response"] = $credentials_check;
-      $this->load->view("templates/header", $data);
-      $this->load->view("users/register", $data);
-      $this->load->view("templates/footer");
-      return null;
+      $this->alerts->redirect_and_alert(array(
+        "message" => $credentials_check["message"],
+        "type" => "error",
+        "destination" => "users/register"
+      ));
     }
 
     $user = $credentials_check["user"];
@@ -110,14 +129,19 @@ class Users extends CI_Controller
     );
 
     $this->session->set_userdata($session_data);
-    redirect("");
+    $this->alerts->redirect_and_alert(array(
+      "message" => $credentials_check["message"],
+    ));
   }
 
   public function logout()
   {
-    $data["auth"] = $this->auth->login_info;
     if (!$this->auth->is_logged_in()) {
-      redirect("");
+      $this->alerts->redirect_and_alert(array(
+        "message" => "You have not logged in!",
+        "type" => "error",
+        "destination" => "users/login"
+      ));
     }
 
     $session_data = array(
@@ -127,7 +151,9 @@ class Users extends CI_Controller
     );
 
     $this->session->set_userdata($session_data);
-    redirect("");
+    $this->alerts->redirect_and_alert(array(
+      "message" => "You have been logged out!",
+    ));
   }
 
   public function seed_admin()

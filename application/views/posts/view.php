@@ -9,6 +9,8 @@
     <p class="post-view-created-at">Created at: <?= $post["created_at"] ?></p>
 
   </div>
-  <a class="btn-edit-post" href="<?php echo base_url("posts/edit"); ?>/<?php echo $post["id"]; ?>">Edit Post</a>
-  <button class="btn-delete-post" data-post-id="<?= $post["id"] ?>">Delete Post</button>
+  <?php if ($auth["logged_in"] && $auth["user"]["id"] === $post["user_id"]): ?>
+    <a class="btn-edit-post" href="<?php echo base_url("posts/edit"); ?>/<?php echo $post["id"]; ?>">Edit Post</a>
+    <button class="btn-delete-post" data-post-id="<?= $post["id"] ?>">Delete Post</button>
+  <?php endif; ?>
 </div>

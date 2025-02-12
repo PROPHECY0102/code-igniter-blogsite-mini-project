@@ -1,7 +1,4 @@
 <script type="module" src="<?= base_url("assets/js/users/login.js"); ?>"></script>
-<?php foreach ($login_response as $key => $value): ?>
-  <h1><?php echo $key; ?>: <?php echo $value; ?></h1>
-<?php endforeach; ?>
 <div class="login-container">
   <div class="publish-header-container">
     <h1 class="publish-heading">Login</h1>

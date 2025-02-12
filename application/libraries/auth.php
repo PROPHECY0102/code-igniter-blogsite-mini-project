@@ -34,6 +34,15 @@ class Auth
     }
   }
 
+  public function get_user_id()
+  {
+    $curr_user = $this->login_info["user"];
+    if ($curr_user == null) {
+      return null;
+    }
+    return $curr_user["id"];
+  }
+
   public function is_logged_in()
   {
     return $this->login_info["logged_in"] ? true : false;
@@ -47,5 +56,19 @@ class Auth
     }
 
     return $user["role"] === "admin" ? true : false;
+  }
+
+  public function no_auth_redirect($params)
+  {
+    if (!$this->is_logged_in()) {
+      $no_auth = array(
+        "notify" => true,
+        "notify_message" => "You must be signed in to {$params['message']}!",
+        "notify_type" => $params["type"] ?? "error",
+        "prev_route" => $params["prev_route"] ?? uri_string()
+      );
+      $this->CI->session->set_flashdata($no_auth);
+      redirect($params["destination"] ?? "users/login");
+    }
   }
 }

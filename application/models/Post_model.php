@@ -10,10 +10,12 @@ class Post_model extends CI_Model
   public function get_posts($slug = FALSE, $orderType = "ASC")
   {
     if ($slug === FALSE) {
-      $query = $this->db->order_by("id", $orderType)->get('posts');
+      $sql = "SELECT * FROM `posts` INNER JOIN `users` ON `posts`.user_id = `users`.id ORDER BY `posts`.id $orderType";
+      $query = $this->db->query($sql);
       return $query->result_array();
     }
 
+    $sql = "SELECT * FROM `posts` INNER JOIN `users` ON `posts`.user_id = `users`.id WHERE `posts`.slug={$this->db->escape($slug)}";
     $query = $this->db->get_where('posts', ['slug' => $slug]);
     return $query->row_array();
   }
@@ -22,7 +24,7 @@ class Post_model extends CI_Model
   {
     $orderType = $orderType === "ASC" ? "ASC" : "DESC";
     if (is_numeric($limit) || is_numeric($offset)) {
-      $sql = "SELECT * FROM `posts` ORDER BY id $orderType LIMIT $limit OFFSET $offset";
+      $sql = "SELECT * FROM `posts` INNER JOIN `users` ON `posts`.user_id = `users`.id ORDER BY `posts`.id $orderType LIMIT $limit OFFSET $offset";
       $query = $this->db->query($sql);
       return $query->result_array();
     }
@@ -44,10 +46,10 @@ class Post_model extends CI_Model
     return $query->row_array();
   }
 
-  public function create_post($title, $content)
+  public function create_post($title, $content, $user_id)
   {
     $slug = strtolower(url_title($title, "-", TRUE));
-    return $this->db->insert("posts", ["title" => $title, "slug" => $slug, "content" => $content]);
+    return $this->db->insert("posts", ["title" => $title, "slug" => $slug, "content" => $content, "user_id" => $user_id]);
   }
 
   public function update_post($id, $title, $content)

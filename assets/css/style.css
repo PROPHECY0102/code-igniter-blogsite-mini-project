@@ -7,6 +7,9 @@
 	--clr-secondary-300: hsl(211, 52%, 57%);
 	--clr-secondary-600: hsl(211, 54%, 46%);
 
+	--clr-error-500: #ef4444;
+	--clr-feedback-500: #22c55e;
+
 	--clr-neutral-100: hsl(220, 13%, 13%);
 	--clr-neutral-300: hsl(219, 9%, 45%);
 	--clr-neutral-400: hsl(220, 14%, 75%);
@@ -183,6 +186,7 @@ body {
 }
 
 .header {
+	position: relative;
 	padding-block: 2rem;
 	padding-inline: 12rem;
 	color: var(--clr-neutral-900);
@@ -190,6 +194,31 @@ body {
 	display: flex;
 	justify-content: space-between;
 	align-items: center;
+}
+
+.notification-container {
+	display: block;
+	position: absolute;
+	top: 650%;
+	left: 50%;
+	transform: translateX(-50%);
+	padding-inline: 1.75rem;
+	padding-block: 1.5rem;
+	background-color: var(--clr-feedback-500);
+	box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+}
+
+.notification-container[data-alert="error"] {
+	background-color: var(--clr-error-500);
+}
+
+.notification-container[data-hide] {
+	display: none;
+}
+
+.notification-text {
+	font-weight: medium;
+	font-size: 1rem;
 }
 
 .header-logo-nav {
@@ -313,6 +342,15 @@ body {
 	margin-top: 1rem;
 	padding-top: 0.5rem;
 	border-top: 0.5px solid black;
+}
+
+.post-extra-details {
+	display: flex;
+	gap: 1rem;
+}
+
+.post-belongs-user {
+	font-weight: bold;
 }
 
 .post-created-at {
@@ -447,6 +485,20 @@ body {
 
 .content-textarea {
 	resize: vertical;
+}
+
+.form-image-container {
+	margin-top: 1rem;
+	display: grid;
+}
+
+.form-image-label {
+	font-size: 1.2rem;
+	font-weight: medium;
+}
+
+.form-image-field {
+	margin-top: 0.2rem;
 }
 
 .form-publish-container {

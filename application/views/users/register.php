@@ -24,16 +24,6 @@
       <div class="register-submit-container">
         <input type="submit" value="Register" class="btn-submit-register">
       </div>
-
-      <?php if (isset($register_response)): ?>
-        <?php foreach ($register_response as $key => $value): ?>
-          <?php if (!$register_response[$key]): ?>
-            <p>false</p>
-          <?php else: ?>
-            <p><?php echo $register_response[$key]; ?></p>
-          <?php endif; ?>
-        <?php endforeach; ?>
-      <?php endif; ?>
     </form>
   </div>
 </div>

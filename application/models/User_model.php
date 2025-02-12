@@ -215,7 +215,7 @@ class User_model extends CI_Model
       return [
         "login_status" => false,
         "reason" => $login_method,
-        "message" => "User Not Found",
+        "message" => "Unable to login: Username doesn't exist or Password is incorrect!",
         "request_valid" => true
       ];
     }
@@ -226,7 +226,7 @@ class User_model extends CI_Model
       return [
         "login_status" => false,
         "reason" => "password",
-        "message" => "Password Does Not Match",
+        "message" => "Unable to login: Username doesn't exist or Password is incorrect!",
         "request_valid" => true
       ];
     }
@@ -235,7 +235,7 @@ class User_model extends CI_Model
       "user" => $user,
       "login_status" => true,
       "reason" => "",
-      "message" => "Login Successful",
+      "message" => "Login Successful! Welcome {$user['name']}",
       "request_valid" => true
     ];
   }
