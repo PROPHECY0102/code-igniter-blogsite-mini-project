@@ -35,7 +35,7 @@ class Posts extends CI_Controller
     $config = array();
     $config['base_url'] = base_url('posts/index'); // URL for pagination links
     $config['total_rows'] = $this->post_model->get_total_posts(); // Total records count
-    $config['per_page'] = 5; // Number of records per page
+    $config['per_page'] = 8; // Number of records per page
     $config['uri_segment'] = 3; // URL segment for page number
     $config['num_links'] = 2; // Number of pagination links to display
 
@@ -91,7 +91,28 @@ class Posts extends CI_Controller
 
   private function post_image_upload()
   {
-    // Configure Image Upload Library
+    // Configure Image Upload Library and initialize file upload library
+    $config['upload_path'] = './assets/images/posts';
+    $config['allowed_types'] = 'jpg|jpeg|png';
+    $config['max_size'] = 8192;
+    $config['max_width'] = 3840;
+    $config['max_height'] = 2160;
+
+    $this->load->library('upload', $config);
+
+    if (!$this->upload->do_upload("post-image")) {
+      return array(
+        "is_uploaded" => false,
+        "data" => array('error' => $this->upload->display_errors()),
+        "filename" => null
+      );
+    }
+
+    return array(
+      "is_uploaded" => true,
+      "data" => array("upload_data" => $this->upload->data()),
+      "filename" => $_FILES["post-image"]["name"]
+    );
   }
 
   public function publish()
@@ -116,9 +137,25 @@ class Posts extends CI_Controller
     $content = $req_body["content"];
 
     //Handle Image Upload
+    if (isset($_FILES["post-image"])) {
+      $upload_status = $this->post_image_upload();
+
+      if (!$upload_status["is_uploaded"]) {
+        $this->alerts->redirect_and_alert(array(
+          "message" => "Error! The file you have uploaded could be submitted.",
+          "type" => "error",
+          "destination" => "posts/publish"
+        ));
+      }
+    } else {
+      $upload_status = array(
+        "data" => "User did not submit an image",
+        "filename" => null
+      );
+    }
 
     // $user_id = $this->view_data["auth"]["user"]["id"];
-    $this->post_model->create_post($title, $content, $this->auth->get_user_id());
+    $this->post_model->create_post($title, $content, $this->auth->get_user_id(), $upload_status["filename"]);
     $this->alerts->redirect_and_alert(array(
       "message" => "Your post has been successfully published!",
       "destination" => "posts"
@@ -153,12 +190,14 @@ class Posts extends CI_Controller
 
     $req_body = $this->input->post();
     if (empty($req_body["title"]) || empty($req_body["content"])) {
-      $this->load->view('templates/header', $this->view_data);
-      $this->load->view("posts/edit", $this->view_data);
-      $this->load->view('templates/footer');
-      return null;
+      $this->alerts->redirect_and_alert(array(
+        "message" => "Both the title or the content field cannot be empty!",
+        "type" => "error",
+        "destination" => "posts/edit/$id"
+      ));
     }
 
+    // Handle Image Update
 
     $this->post_model->update_post($id, $req_body["title"], $req_body["content"]);
     $edited_post = $this->post_model->get_post_by_id($id);
@@ -223,7 +262,9 @@ class Posts extends CI_Controller
     $this->load->model('post_model');
     $title = ucwords($this->genTitle($titleLength, $sample_text_array));
     $content = $this->genContent($contentLength, $sample_text_array);
-    $insert_status = $this->post_model->create_post($title, $content, 1);
+    $images_list = ["seed-one.jpg", "seed-two.jpg", "seed-three.jpg", "seed-four.png"];
+    $image = $images_list[rand(0, count($images_list) - 1)];
+    $insert_status = $this->post_model->create_post($title, $content, 1, $image);
     if ($insert_status == false) {
       $status_obj["failed_to_insert"]++;
     }

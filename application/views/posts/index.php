@@ -9,6 +9,11 @@
       <?php foreach ($posts as $index => $post): ?>
         <div class="post-container">
           <h2 class="post-title"><?= (($index + $offset) + 1) ?>. <?= $post["title"] ?></h2>
+          <div class="post-image-container">
+            <?php if (isset($post["image"])): ?>
+              <img class="post-image" src="<?php echo base_url("assets/images/posts/{$post['image']}"); ?>" alt="<?php echo $post["image"]; ?>">
+            <?php endif; ?>
+          </div>
           <p class="post-content">
             <?php echo word_limiter($post["content"], 60, "..."); ?>
           </p>
@@ -24,8 +29,9 @@
     <?php else: ?>
       <h1>No Posts found.</h1>
     <?php endif; ?>
-    <nav>
-      <?= $pagination_links; ?>
-    </nav>
+
   </div>
+  <nav>
+    <?= $pagination_links; ?>
+  </nav>
 </div>

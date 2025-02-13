@@ -1,14 +1,5 @@
 <?php
 
-use function PHPSTORM_META\type;
-
-/** 
- *
- * @property User_model $user_model
- * @property input $input
- * @property session $session
- *
- */
 class Users extends CI_Controller
 {
   protected $view_data;
@@ -41,7 +32,7 @@ class Users extends CI_Controller
     }
     $this->view_data["title"] = "Login";
 
-    if ($this->input->method() === "get") {
+    if ($this->input->method() !== "post") {
       $this->view_data["login_response"] = array();
       $this->load->view("templates/header", $this->view_data);
       $this->load->view("users/login");
@@ -166,6 +157,7 @@ class Users extends CI_Controller
       "username" => $admin_username,
       "email" => $admin_email,
       "password" => $admin_password,
+      "bio" => "",
       "role" => "admin",
     ];
 

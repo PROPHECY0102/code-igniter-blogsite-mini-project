@@ -14,6 +14,29 @@
         <textarea name="content" class="form-text-input content-textarea" placeholder="Enter a post content"><?php echo $post["content"]; ?>
         </textarea>
       </div>
+      <div class="form-post-image-container">
+        <div class="form-post-image-header">
+          <p class="current-image">
+            <?php if (isset($post["image"])): ?>
+              Current Image: <?php echo $post["image"]; ?>
+            <?php else: ?>
+              This post currently has no image.
+            <?php endif; ?>
+          </p>
+          <?php if (isset($post["image"])): ?>
+            <button type="button" class="btn-remove-image">Remove this image</button>
+          <?php endif; ?>
+        </div>
+        <div class="form-preview-image-container">
+          <?php if (isset($post["image"])): ?>
+            <img src="<?php echo base_url("assets/images/posts/{$post['image']}"); ?>" alt="<?php echo $post["image"]; ?>" class="form-preview-image">
+          <?php endif; ?>
+        </div>
+        <div class="form-image-container">
+          <label for="post-image" class="form-image-label">Add or Edit the image of this post.</label>
+          <input type="file" name="post-image" class="form-image-field">
+        </div>
+      </div>
       <div class="form-publish-container">
         <input type="submit" value="Edit" class="btn-submit-post">
       </div>

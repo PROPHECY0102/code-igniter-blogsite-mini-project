@@ -46,16 +46,20 @@ class Post_model extends CI_Model
     return $query->row_array();
   }
 
-  public function create_post($title, $content, $user_id)
+  public function create_post($title, $content, $user_id, $image = null)
   {
     $slug = strtolower(url_title($title, "-", TRUE));
-    return $this->db->insert("posts", ["title" => $title, "slug" => $slug, "content" => $content, "user_id" => $user_id]);
+    return $this->db->insert("posts", ["title" => $title, "slug" => $slug, "content" => $content, "user_id" => $user_id, "image" => $image]);
   }
 
-  public function update_post($id, $title, $content)
+  public function update_post($id, $title, $content, $image = array("edited" => false, "image" => null))
   {
     $slug = strtolower(url_title($title, "-", TRUE));
-    $sql = "UPDATE `posts` SET title={$this->db->escape($title)}, slug={$this->db->escape($slug)}, content={$this->db->escape($content)} WHERE id={$this->db->escape($id)}";
+    if (!$image["edited"]) {
+      $sql = "UPDATE `posts` SET title={$this->db->escape($title)}, slug={$this->db->escape($slug)}, content={$this->db->escape($content)} WHERE id={$this->db->escape($id)}";
+      return $this->db->query($sql);
+    }
+    $sql = "UPDATE `posts` SET title={$this->db->escape($title)}, slug={$this->db->escape($slug)}, content={$this->db->escape($content)} image={$this->db->escape($image['image'])} WHERE id={$this->db->escape($id)}";
     return $this->db->query($sql);
   }
 
